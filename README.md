@@ -12,15 +12,39 @@ fastlane add_plugin ftp
 
 ## About ftp
 
-Ftp upload and download for Fastlane
+Simple FTP plugins for Fastlane
 
-**Note to author:** Add a more detailed description about this plugin here. If your plugin contains multiple actions, make sure to mention them here.
+Support Download and Upload
 
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`. 
+### Upload :
 
-**Note to author:** Please set up a sample project to make it easy for users to explore what your plugin does. Provide everything that is necessary to try out the plugin in this project (including a sample Xcode/Android project if necessary)
+```ruby
+  ftp(
+    host: 'ftp.domain.com',
+    username: 'my_name',
+    password: 'my_password',
+    upload: {
+      src: "./localFile",
+      dest:"/server/path/"
+    }
+    )
+```
+
+### Download
+
+```ruby
+  ftp(
+    host: 'ftp.domain.com',
+    username: 'my_name',
+    password: 'my_password',
+    download: {
+      src: "/distant/server/path/file.md",
+      dest:"/localPath/file.md"
+    }
+    )
+```
 
 ## Run tests for this plugin
 
@@ -30,7 +54,7 @@ To run both the tests, and code style validation, run
 rake
 ```
 
-To automatically fix many of the styling issues, use 
+To automatically fix many of the styling issues, use
 ```
 rubocop -a
 ```
