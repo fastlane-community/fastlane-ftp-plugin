@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fastlane-plugin-ftp (0.1.0)
+    fastlane-plugin-ftp (0.1.3)
 
 GEM
   remote: https://rubygems.org/
