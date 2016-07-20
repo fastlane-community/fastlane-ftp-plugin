@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = %q{allan.vialatte@icloud.com}
 
   spec.summary       = %q{Simple ftp upload and download for Fastlane}
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-ftp"
+  spec.homepage      = "https://github.com/PoissonBallon/fastlane-ftp-plugin"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
