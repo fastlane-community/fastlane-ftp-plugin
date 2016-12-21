@@ -13,58 +13,61 @@ module Fastlane
       end
 
       def self.open(params, folder)
-        Net::FTP.open(params[:host], params[:username], params[:password]) do |ftp|
-          UI.success("Successfully connect to #{params[:host]}")
-          ftp.passive = true
-          parts = folder.split("/")
-          growing_path = ""
-          parts.each do |part|
-            growing_path += "/" + part
-            begin
-              ftp.chdir(growing_path)
-            rescue
-              ftp.mkdir(part) unless File.exist?(growing_path)
-              retry
-            end
+        ftp = Net::FTP.new
+        ftp.connect(params[:host], params[:port])
+        ftp.login(params[:username], params[:password])
+        UI.success("Successfully connect to #{params[:host]}:#{params[:port]}")
+        ftp.passive = true
+        parts = folder.split("/")
+        growing_path = ""
+        parts.each do |part|
+          growing_path += "/" + part
+          begin
+            ftp.chdir(growing_path)
+          rescue
+            ftp.mkdir(part) unless File.exist?(growing_path)
+            retry
           end
-          UI.success("FTP move in #{growing_path} on #{params[:host]}")
-          ftp.close
         end
+        UI.success("FTP move in #{growing_path} on #{params[:host]}:#{params[:port]}")
+        ftp.close
       end
 
       def self.put(params)
-        Net::FTP.open(params[:host], params[:username], params[:password]) do |ftp|
-          ftp.passive = true
-          ftp.chdir(params[:upload][:dest])
-          transferred = 0
-          filesize = File.size(params[:upload][:src])
-          ftp.putbinaryfile(params[:upload][:src], params[:upload][:src].split("/").last) do |data|
-            transferred += data.size
-            percent = ((transferred.to_f / filesize.to_f) * 100).to_i
-            finished = ((transferred.to_f / filesize.to_f) * 30).to_i
-            not_finished = 30 - finished
-            print "\r"
-            print "%3i %" % percent
-            print "["
-            finished.downto(1) { |n| print "=" }
-            print ">"
-            not_finished.downto(1) { |n| print " " }
-            print "]"
-          end
-          print "\n"
-          UI.success("Successfully uploaded #{params[:upload][:src]}")
-          ftp.close
+        ftp = Net::FTP.new
+        ftp.connect(params[:host], params[:port])
+        ftp.login(params[:username], params[:password])
+        ftp.passive = true
+        ftp.chdir(params[:upload][:dest])
+        transferred = 0
+        filesize = File.size(params[:upload][:src])
+        ftp.putbinaryfile(params[:upload][:src], params[:upload][:src].split("/").last) do |data|
+          transferred += data.size
+          percent = ((transferred.to_f / filesize.to_f) * 100).to_i
+          finished = ((transferred.to_f / filesize.to_f) * 30).to_i
+          not_finished = 30 - finished
+          print "\r"
+          print "%3i %" % percent
+          print "["
+          finished.downto(1) { |n| print "=" }
+          print ">"
+          not_finished.downto(1) { |n| print " " }
+          print "]"
         end
+        print "\n"
+        UI.success("Successfully uploaded #{params[:upload][:src]}")
+        ftp.close
       end
 
       def self.get(params)
-        Net::FTP.open(params[:host], params[:username], params[:password]) do |ftp|
-          ftp.passive = true
-          ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
-          end
-          UI.success("Successfully download #{params[:download][:dest]}")
-          ftp.close
+        ftp = Net::FTP.new
+        ftp.connect(params[:host], params[:port])
+        ftp.login(params[:username], params[:password])
+        ftp.passive = true
+        ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
         end
+        UI.success("Successfully download #{params[:download][:dest]}")
+        ftp.close
       end
 
       #####################################################
@@ -118,6 +121,13 @@ module Fastlane
           optional: true,
           is_string: false,
           type: Hash),
+          FastlaneCore::ConfigItem.new(key: :port,
+          short_option: "-P",
+          env_name: "FL_FTP_PORT",
+          description: "Port",
+          optional: true,
+          is_string: false,
+          type: Fixnum),
         ]
       end
 
