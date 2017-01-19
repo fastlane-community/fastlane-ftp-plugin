@@ -40,20 +40,42 @@ module Fastlane
           filesize = File.size(params[:upload][:src])
           ftp.putbinaryfile(params[:upload][:src], params[:upload][:src].split("/").last) do |data|
             transferred += data.size
-            percent = ((transferred.to_f / filesize.to_f) * 100).to_i
-            finished = ((transferred.to_f / filesize.to_f) * 30).to_i
-            not_finished = 30 - finished
-            print "\r"
-            print "%3i %" % percent
-            print "["
-            finished.downto(1) { |n| print "=" }
-            print ">"
-            not_finished.downto(1) { |n| print " " }
-            print "]"
+            indicate_progress(transferred, filesize, params[:simple_progress_bar])
           end
           print "\n"
           UI.success("Successfully uploaded #{params[:upload][:src]}")
           ftp.close
+        end
+      end
+
+      def indicate_progress(transferred, filesize, simple_progress_bar)
+        if simple_progress_bar
+          unless @header_printed
+            print "0%       25%       50%       75%        100%\n"
+            print "|         |         |         |          |\n"
+            print "["
+            @header_printed = true
+            @chars_printed = 0
+          end
+          length = 40
+          finished = ((transferred.to_f / filesize.to_f) * length).to_i
+          (finished-1).downto(@chars_printed) { |n| print '='; @chars_printed+=1 }
+          if @chars_printed == length
+            print "]\n"
+            @chars_printed += 1
+          end
+
+        else
+          percent = ((transferred.to_f / filesize.to_f) * 100).to_i
+          finished = ((transferred.to_f / filesize.to_f) * 30).to_i
+          not_finished = 30 - finished
+          print "\r"
+          print "%3i %" % percent
+          print "["
+          finished.downto(1) { |n| print "=" }
+          print ">"
+          not_finished.downto(1) { |n| print " " }
+          print "]"
         end
       end
 
