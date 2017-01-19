@@ -140,6 +140,12 @@ module Fastlane
           optional: true,
           is_string: false,
           type: Hash),
+          FastlaneCore::ConfigItem.new(key: :simple_progress_bar,
+                                       short_option: "-D",
+                                       env_name: "FL_FTP_SIMPLE_PROGRESS",
+                                       description: "Progressbar without newlines",
+                                       optional: true,
+                                       is_string: false)
         ]
       end
 
