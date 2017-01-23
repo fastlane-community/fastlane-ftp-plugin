@@ -16,8 +16,8 @@ module Fastlane
         ftp = Net::FTP.new
         ftp.connect(params[:host], params[:port])
         ftp.login(params[:username], params[:password])
-        UI.success("Successfully connect to #{params[:host]}:#{params[:port]}")
         ftp.passive = true
+        UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
         parts = folder.split("/")
         growing_path = ""
         parts.each do |part|
@@ -64,6 +64,7 @@ module Fastlane
         ftp.connect(params[:host], params[:port])
         ftp.login(params[:username], params[:password])
         ftp.passive = true
+        UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
         ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
         end
         UI.success("Successfully download #{params[:download][:dest]}")
@@ -126,6 +127,7 @@ module Fastlane
           env_name: "FL_FTP_PORT",
           description: "Port",
           optional: true,
+          default_value: 21,
           is_string: false,
           type: Fixnum),
         ]

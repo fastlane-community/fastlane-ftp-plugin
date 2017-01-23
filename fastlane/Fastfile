@@ -1,6 +1,6 @@
 lane :testUpload do
   ftp(
-  host: "ftp.dlptest.com",
+  host: ENV['FTP_HOST'],
   username: ENV['FTP_USER'],
   password: ENV['FTP_PASSWORD'],
   upload: {
@@ -40,7 +40,7 @@ lane :testDownloadPort do
   host: ENV['FTP_HOST'],
   username: ENV['FTP_USER'],
   password: ENV['FTP_PASSWORD'],
-  port: ENV['FTP_PORT'],
+  port: ENV['FTP_PORT'].to_i,
   download: {
     src: ENV['FTP_DOWNLOAD_SRC'],
     dest:ENV['FTP_DOWNLOAD_DEST']
