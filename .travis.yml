@@ -1,0 +1,7 @@
+osx_image: xcode8.2
+
+script:
+  - fastlane testDownload --env test
+  - fastlane testDownloadPort --env test
+  - fastlane testUpload --env test
+  - fastlane testUploadPort --env test
