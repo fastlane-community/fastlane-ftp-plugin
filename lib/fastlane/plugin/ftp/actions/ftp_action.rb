@@ -30,7 +30,7 @@ module Fastlane
           end
         end
         UI.success("FTP move in #{growing_path} on #{params[:host]}:#{params[:port]}")
-        ftp.quit
+        ftp.close
       end
 
       def self.put(params)
@@ -56,96 +56,96 @@ module Fastlane
         end
         print "\n"
         UI.success("Successfully uploaded #{params[:upload][:src]}")
-        ftp.quit
+        ftp.close
       end
 
       def self.get(params)
-        Net::FTP.new do |ftp|
-          ftp.passive = true
-          ftp.connect(params[:host], params[:port])
-          ftp.login(params[:username], params[:password])
-          UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
-          ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
-          end
-          UI.success("Successfully download #{params[:download][:dest]}")
+        ftp = Net::FTP.new
+        ftp.passive = true
+        ftp.connect(params[:host], params[:port])
+        ftp.login(params[:username], params[:password])
+        UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
+        ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
         end
-      end
+        UI.success("Successfully download #{params[:download][:dest]}")
+        ftp.close
+    end
 
-      #####################################################
-      # @!group Documentation
-      #####################################################
+    #####################################################
+    # @!group Documentation
+    #####################################################
 
-      def self.description
-        "Upload and Download files via FTP"
-      end
+    def self.description
+      "Upload and Download files via FTP"
+    end
 
-      def self.details
-        # Optional:
-        # this is your chance to provide a more detailed description of this action
-        "Transfer files via FTP, and create recursively folder for upload action"
-      end
+    def self.details
+      # Optional:
+      # this is your chance to provide a more detailed description of this action
+      "Transfer files via FTP, and create recursively folder for upload action"
+    end
 
-      def self.available_options
-        [
-          FastlaneCore::ConfigItem.new(key: :username,
-          short_option: "-u",
-          env_name: "FL_FTP_USERNAME",
-          description: "Username",
-          is_string: true),
-          FastlaneCore::ConfigItem.new(key: :password,
-          short_option: "-p",
-          env_name: "FL_FTP_PASSWORD",
-          description: "Password",
-          optional: false,
-          is_string: true),
-          FastlaneCore::ConfigItem.new(key: :host,
-          short_option: "-H",
-          env_name: "FL_FTP_HOST",
-          description: "Hostname",
-          is_string: true),
-          FastlaneCore::ConfigItem.new(key: :folder,
-          short_option: "-f",
-          env_name: "FL_FTP_FOLDER",
-          description: "repository",
-          is_string: true),
-          FastlaneCore::ConfigItem.new(key: :upload,
-          short_option: "-U",
-          env_name: "FL_FTP_UPLOAD",
-          description: "Upload",
-          optional: true,
-          is_string: false,
-          type: Hash),
-          FastlaneCore::ConfigItem.new(key: :download,
-          short_option: "-D",
-          env_name: "FL_FTP_DOWNLOAD",
-          description: "Download",
-          optional: true,
-          is_string: false,
-          type: Hash),
-          FastlaneCore::ConfigItem.new(key: :port,
-          short_option: "-P",
-          env_name: "FL_FTP_PORT",
-          description: "Port",
-          optional: true,
-          default_value: 21,
-          is_string: false,
-          type: Fixnum),
-        ]
-      end
+    def self.available_options
+      [
+        FastlaneCore::ConfigItem.new(key: :username,
+        short_option: "-u",
+        env_name: "FL_FTP_USERNAME",
+        description: "Username",
+        is_string: true),
+        FastlaneCore::ConfigItem.new(key: :password,
+        short_option: "-p",
+        env_name: "FL_FTP_PASSWORD",
+        description: "Password",
+        optional: false,
+        is_string: true),
+        FastlaneCore::ConfigItem.new(key: :host,
+        short_option: "-H",
+        env_name: "FL_FTP_HOST",
+        description: "Hostname",
+        is_string: true),
+        FastlaneCore::ConfigItem.new(key: :folder,
+        short_option: "-f",
+        env_name: "FL_FTP_FOLDER",
+        description: "repository",
+        is_string: true),
+        FastlaneCore::ConfigItem.new(key: :upload,
+        short_option: "-U",
+        env_name: "FL_FTP_UPLOAD",
+        description: "Upload",
+        optional: true,
+        is_string: false,
+        type: Hash),
+        FastlaneCore::ConfigItem.new(key: :download,
+        short_option: "-D",
+        env_name: "FL_FTP_DOWNLOAD",
+        description: "Download",
+        optional: true,
+        is_string: false,
+        type: Hash),
+        FastlaneCore::ConfigItem.new(key: :port,
+        short_option: "-P",
+        env_name: "FL_FTP_PORT",
+        description: "Port",
+        optional: true,
+        default_value: 21,
+        is_string: false,
+        type: Fixnum),
+      ]
+    end
 
-      def self.output
-      end
+    def self.output
+    end
 
-      def self.return_value
-      end
+    def self.return_value
+    end
 
-      def self.authors
-        ["Allan Vialatte"]
-      end
+    def self.authors
+      ["Allan Vialatte"]
+    end
 
-      def self.is_supported?(platform)
-        true
-      end
+    def self.is_supported?(platform)
+      true
     end
   end
+end
 end
