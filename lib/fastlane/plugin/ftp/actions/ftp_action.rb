@@ -30,7 +30,6 @@ module Fastlane
           end
         end
         UI.success("FTP move in #{growing_path} on #{params[:host]}:#{params[:port]}")
-        ftp.quit
       end
 
       def self.put(params)
@@ -56,7 +55,6 @@ module Fastlane
         end
         print "\n"
         UI.success("Successfully uploaded #{params[:upload][:src]}")
-        ftp.quit
       end
 
       def self.get(params)
@@ -68,7 +66,6 @@ module Fastlane
         ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
         end
         UI.success("Successfully download #{params[:download][:dest]}")
-        ftp.quit
     end
 
     #####################################################
