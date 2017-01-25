@@ -60,15 +60,14 @@ module Fastlane
       end
 
       def self.get(params)
-        ftp = Net::FTP.new
-        ftp.connect(params[:host], params[:port])
-        ftp.login(params[:username], params[:password])
-        ftp.passive = true
-        UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
-        ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
+        Net::FTP.open(params[:host], params[:port]) do |ftp|
+          ftp.passive = true
+          ftp.login(params[:username], params[:password])
+          UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
+          ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
+          end
+          UI.success("Successfully download #{params[:download][:dest]}")
         end
-        UI.success("Successfully download #{params[:download][:dest]}")
-        ftp.quit
       end
 
       #####################################################
