@@ -13,39 +13,39 @@ module Fastlane
       end
 
       def self.open(params, folder)
-        Net::FTP.open(params[:host], params[:username], params[:password]) do |ftp|
-          UI.success("Successfully connect to #{params[:host]}")
-          ftp.passive = true
-          parts = folder.split("/")
-          growing_path = ""
-          parts.each do |part|
-            growing_path += "/" + part
-            begin
-              ftp.chdir(growing_path)
-            rescue
-              ftp.mkdir(part) unless File.exist?(growing_path)
-              retry
-            end
+        ftp = Net::FTP.new
+        ftp.connect(params[:host], params[:port])
+        ftp.login(params[:username], params[:password])
+        ftp.passive = true
+        UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
+        parts = folder.split("/")
+        growing_path = ""
+        parts.each do |part|
+          growing_path += "/" + part
+          begin
+            ftp.chdir(growing_path)
+          rescue
+            ftp.mkdir(part) unless File.exist?(growing_path)
+            retry
           end
-          UI.success("FTP move in #{growing_path} on #{params[:host]}")
-          ftp.close
         end
+        UI.success("FTP move in #{growing_path} on #{params[:host]}:#{params[:port]}")
       end
 
       def self.put(params)
-        Net::FTP.open(params[:host], params[:username], params[:password]) do |ftp|
-          ftp.passive = true
-          ftp.chdir(params[:upload][:dest])
-          transferred = 0
-          filesize = File.size(params[:upload][:src])
-          ftp.putbinaryfile(params[:upload][:src], params[:upload][:src].split("/").last) do |data|
-            transferred += data.size
-            indicate_progress(transferred, filesize, params[:simple_progress_bar])
-          end
-          print "\n"
-          UI.success("Successfully uploaded #{params[:upload][:src]}")
-          ftp.close
+        ftp = Net::FTP.new
+        ftp.connect(params[:host], params[:port])
+        ftp.login(params[:username], params[:password])
+        ftp.passive = true
+        ftp.chdir(params[:upload][:dest])
+        transferred = 0
+        filesize = File.size(params[:upload][:src])
+        ftp.putbinaryfile(params[:upload][:src], params[:upload][:src].split("/").last) do |data|
+          transferred += data.size
+          indicate_progress(transferred, filesize, params[:simple_progress_bar])
         end
+        print "\n"
+        UI.success("Successfully uploaded #{params[:upload][:src]}")
       end
 
       def self.indicate_progress(transferred, filesize, simple_progress_bar)
@@ -80,28 +80,29 @@ module Fastlane
       end
 
       def self.get(params)
-        Net::FTP.open(params[:host], params[:username], params[:password]) do |ftp|
-          ftp.passive = true
-          ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
-          end
-          UI.success("Successfully download #{params[:download][:dest]}")
-          ftp.close
+        ftp = Net::FTP.new
+        ftp.passive = true
+        ftp.connect(params[:host], params[:port])
+        ftp.login(params[:username], params[:password])
+        UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
+        ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
         end
-      end
+        UI.success("Successfully download #{params[:download][:dest]}")
+    end
 
-      #####################################################
-      # @!group Documentation
-      #####################################################
+    #####################################################
+    # @!group Documentation
+    #####################################################
 
-      def self.description
-        "Upload and Download files via FTP"
-      end
+    def self.description
+      "Upload and Download files via FTP"
+    end
 
-      def self.details
-        # Optional:
-        # this is your chance to provide a more detailed description of this action
-        "Transfer files via FTP, and create recursively folder for upload action"
-      end
+    def self.details
+      # Optional:
+      # this is your chance to provide a more detailed description of this action
+      "Transfer files via FTP, and create recursively folder for upload action"
+    end
 
       def self.available_options
         [
@@ -145,23 +146,31 @@ module Fastlane
                                          env_name: "FL_FTP_SIMPLE_PROGRESS",
                                          description: "Progressbar without newlines",
                                          optional: true,
-                                         is_string: false)
-        ]
+                                         is_string: false),
+            FastlaneCore::ConfigItem.new(key: :port,
+                                         short_option: "-P",
+                                         env_name: "FL_FTP_PORT",
+                                         description: "Port",
+                                         optional: true,
+                                         default_value: 21,
+                                         is_string: false,
+                                         type: Fixnum),        ]
       end
 
-      def self.output
-      end
 
-      def self.return_value
-      end
+    def self.output
+    end
 
-      def self.authors
-        ["Allan Vialatte"]
-      end
+    def self.return_value
+    end
 
-      def self.is_supported?(platform)
-        true
-      end
+    def self.authors
+      ["Allan Vialatte"]
+    end
+
+    def self.is_supported?(platform)
+      true
     end
   end
+end
 end
