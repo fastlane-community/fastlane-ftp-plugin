@@ -29,6 +29,7 @@ module Fastlane
             retry
           end
         end
+        ftp.close()
         UI.success("FTP move in #{growing_path} on #{params[:host]}:#{params[:port]}")
       end
 
@@ -54,6 +55,7 @@ module Fastlane
           print "]"
         end
         print "\n"
+        ftp.close()
         UI.success("Successfully uploaded #{params[:upload][:src]}")
       end
 
@@ -65,6 +67,7 @@ module Fastlane
         UI.success("Successfully Login to #{params[:host]}:#{params[:port]}")
         ftp.getbinaryfile(params[:download][:src], params[:download][:dest]) do |data|
         end
+        ftp.close()
         UI.success("Successfully download #{params[:download][:dest]}")
     end
 
