@@ -1,12 +1,16 @@
+require 'net/ftp'
+require 'ruby-progressbar'
+
 module Fastlane
   module Actions
     class FtpAction < Action
       def self.run(params)
-        require 'net/ftp'
+        
         if params[:upload]
           FtpAction.open(params, params[:upload][:dest])
           FtpAction.put(params)
         end
+
         if params[:download]
           FtpAction.get(params)
         end
@@ -35,26 +39,16 @@ module Fastlane
 
       def self.put(params)
         ftp = Net::FTP.new
+        progressbar = ProgressBar.create(:format => '%a |%b>>%i| %p%% %t', :starting_at => 0)
         ftp.connect(params[:host], params[:port])
         ftp.login(params[:username], params[:password])
         ftp.passive = true
         ftp.chdir(params[:upload][:dest])
-        transferred = 0
-        filesize = File.size(params[:upload][:src])
+        filesize = File.size(params[:upload][:src])      
+        progressbar.total = filesize
         ftp.putbinaryfile(params[:upload][:src], params[:upload][:src].split("/").last) do |data|
-          transferred += data.size
-          percent = ((transferred.to_f / filesize.to_f) * 100).to_i
-          finished = ((transferred.to_f / filesize.to_f) * 30).to_i
-          not_finished = 30 - finished
-          print "\r"
-          print "%3i %" % percent
-          print "["
-          finished.downto(1) { |n| print "=" }
-          print ">"
-          not_finished.downto(1) { |n| print " " }
-          print "]"
+          progressbar.progress += data.size
         end
-        print "\n"
         ftp.close()
         UI.success("Successfully uploaded #{params[:upload][:src]}")
       end
@@ -122,6 +116,7 @@ module Fastlane
         optional: true,
         is_string: false,
         type: Hash),
+
         FastlaneCore::ConfigItem.new(key: :port,
         short_option: "-P",
         env_name: "FL_FTP_PORT",
@@ -129,7 +124,7 @@ module Fastlane
         optional: true,
         default_value: 21,
         is_string: false,
-        type: Fixnum),
+        type: Integer),
       ]
     end
 
